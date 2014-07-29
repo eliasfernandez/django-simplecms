@@ -1,0 +1,14 @@
+
+<section>
+	<h3 class="name-section"><span>{{ name }}</span></h3>
+		<ul class="filelist filelist-{{id}} row">
+			{%for file in content %}
+				<li class="col-md-5">
+					<a href="{{file.file_link.url}}" title="{{ file.content }}" target="_blank">
+						{{file.name}}
+						<span class="icon icon-{{file.file_link.extension}}"></span>
+					</a>
+				</li>
+			{%endfor%}
+		</ul>
+</section>

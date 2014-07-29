@@ -1,0 +1,12 @@
+<nav id="breadcrumb">
+	<a href="/">Inicio</a>
+	<span class="separator"></span>
+	{% for node in tree %}
+		{% if node = current_page %}
+			{{ node.name }}
+		{% else %}
+			<a href="{{ node.get_absolute_url }}">{{ node.name }}</a>
+			<span class="separator"></span>
+		{% endif %}
+	{% endfor %}
+</nav>

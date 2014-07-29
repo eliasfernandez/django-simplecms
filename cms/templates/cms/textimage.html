@@ -1,0 +1,12 @@
+{% load thumbnail %}
+<div class="text_image text_image_{{id}}">
+	<h2>{{name}}</h2>
+	<div class="row">
+		<figure class="col-md-4">
+			<img src="{% thumbnail image '240x600' crop='scale' %}" />
+		</figure>
+		<div class="description">
+			{{ content.text|safe }}
+		</div>
+	</div>
+</div>

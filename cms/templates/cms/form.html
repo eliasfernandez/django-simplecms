@@ -1,0 +1,16 @@
+{% load bootstrap_tags %}
+
+<div class="form form-{{id}}">
+	{% if request.isvalidform %}
+		<h3>Gracias</h3>
+		<p>Una vez recibida su solicitud, nos pondremos en contacto con Usted a la mayor brevedad.</p>
+	{% else %}
+		<h3>{{name}}</h3>
+		<form action="" method="post">
+			{% csrf_token %}
+			{{ form|as_bootstrap }}
+
+			<input type="submit" class="btn btn-default" value="Enviar" id="id_enviar" />
+		</form>
+	{% endif  %}
+</div>

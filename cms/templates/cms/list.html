@@ -1,0 +1,14 @@
+<h1>{{name}}</h1>
+	{%if is_ordered %}
+		<ol>
+	{%else%}
+		<ul>
+	{%endif%}
+		{%for line in content%}
+				<li>{{line}}</li>
+		{%endfor%}
+	{%if is_ordered %}
+		</ol>
+	{%else%}
+		</ul>
+	{%endif%}

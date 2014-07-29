@@ -1,0 +1,165 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2012-09-17 15:41+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+
+#: admin.py:168
+msgid "Move"
+msgstr ""
+
+#: models.py:44
+msgid "Name"
+msgstr ""
+
+#: models.py:46
+msgid "Subtitle"
+msgstr ""
+
+#: models.py:47
+msgid "Description"
+msgstr ""
+
+#: models.py:49
+msgid "Parent"
+msgstr ""
+
+#: models.py:49
+msgid "Children"
+msgstr ""
+
+#: models.py:115
+msgid "deleted"
+msgstr ""
+
+#: models.py:116
+msgid "hidden"
+msgstr ""
+
+#: models.py:146 models.py:203 models.py:217 models.py:239 models.py:262
+msgid "Content"
+msgstr ""
+
+#: models.py:147
+msgid "para"
+msgstr ""
+
+#: models.py:204
+msgid "ordered list"
+msgstr ""
+
+#: models.py:218
+msgid "has header"
+msgstr ""
+
+#: models.py:362
+msgid "Columns"
+msgstr ""
+
+#: models.py:363
+msgid "max width"
+msgstr ""
+
+#: models.py:364
+msgid "max height"
+msgstr ""
+
+#: models.py:365
+msgid "is slider"
+msgstr ""
+
+#: models.py:396
+msgid "Caption"
+msgstr ""
+
+#: models.py:397
+msgid "alt"
+msgstr ""
+
+#: models.py:398
+msgid "gallery"
+msgstr ""
+
+#: templates/admin/cms/app_index.html:17
+#: templates/admin/edit_inline/gen_coll_tabular.html:57
+#: templates/admin/edit_inline/tabular.html:71
+msgid "Add"
+msgstr ""
+
+#: templates/admin/cms/app_index.html:18
+#: templates/admin/edit_inline/tabular.html:77
+msgid "Change"
+msgstr ""
+
+#: templates/admin/cms/app_index.html:26
+msgid "You don´t have permission to edit anything."
+msgstr ""
+
+#: templates/admin/edit_inline/gen_coll_tabular.html:20
+msgid "Delete?"
+msgstr ""
+
+#: templates/admin/edit_inline/gen_coll_tabular.html:34
+#: templates/admin/edit_inline/stacked.html:9
+msgid "View on site"
+msgstr ""
+
+#: templates/admin/edit_inline/gen_coll_tabular.html:59
+msgid "Modify"
+msgstr ""
+
+#: templates/admin/edit_inline/gen_coll_tabular.html:65
+msgid "Up"
+msgstr ""
+
+#: templates/admin/edit_inline/gen_coll_tabular.html:68
+msgid "Down"
+msgstr ""
+
+#: templates/admin/edit_inline/gen_coll_tabular.html:137
+#: templates/admin/edit_inline/stacked.html:67
+#: templates/admin/edit_inline/tabular.html:121
+#, python-format
+msgid "Add another %(verbose_name)s"
+msgstr ""
+
+#: templates/admin/edit_inline/gen_coll_tabular.html:140
+#: templates/admin/edit_inline/stacked.html:70
+#: templates/admin/edit_inline/tabular.html:101
+#: templates/admin/edit_inline/tabular.html:106
+msgid "Remove"
+msgstr ""
+
+#: templates/admin/edit_inline/tabular.html:9
+msgid "Add Another"
+msgstr ""
+
+#: templates/admin/edit_inline/tabular.html:96
+msgid "View on Site"
+msgstr ""
+
+#: templates/admin/edit_inline/tabular.html:98
+msgid "Move Item"
+msgstr ""
+
+#: templates/admin/edit_inline/tabular.html:123
+msgid "Add Item"
+msgstr ""
+
+#: utils/content.py:94
+#, python-format
+msgid "There is no template asociated with %s content type "
+msgstr ""

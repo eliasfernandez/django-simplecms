@@ -1,0 +1,13 @@
+<nav  class="menu" id="">
+    <ul>
+    	{% for node in nodes %}
+			<li id="page-{{node.id}}" class="menu
+                {% if node.is_root_node %}root{% endif %}
+                {% if node.is_child_node %}child{% endif %}
+                {% if node.is_leaf_node %}leaf{% endif %}
+                {% if node = current_menu %}active{% endif %}
+                {% if current_menu in node.get_descendants %}active open{% else %}closed{% endif %}
+            "> <a href="{{ node.get_absolute_url }}">{{ node.name }}</a> </li>	
+		{% endfor %}
+    </ul>
+</nav>

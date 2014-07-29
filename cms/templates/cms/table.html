@@ -1,0 +1,12 @@
+<div class="panel panel-default">
+	<div class="panel-heading">{{name}}</div>
+	<table class="table table-content">
+		{% for tr in content %}
+		<tr>
+			{% for td in tr %}
+			<td>{{td}}</td>
+			{% endfor %}
+		</tr>
+		{% endfor %}
+	</table>
+</div>

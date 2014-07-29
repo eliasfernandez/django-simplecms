@@ -1,0 +1,42 @@
+{% extends "base.html"%}
+{% load   menu cache%}
+
+
+{%block title%}
+	{{page.name}} | {{block.super}}
+{%endblock%}
+{%block header%}
+asasas
+	{%cache 86400 header page.id%}
+		<h1>{{page.name}}</h1>
+		<h2>{{page.subtitle}}</h2>
+		
+	
+	{% endcache %}
+		<h3>menu general</h3>
+		{%menu cms.Page%}
+		{% include "cms/menu.html" %}
+		
+		<h3>menu de empresa</h3>
+		{%menu cms.Page 1%}
+		{% include "cms/menu.html" %}
+		
+		<h3>submenu de {{page.name}}</h3>
+		{%menu cms.Page page.id%}
+		{% include "cms/menu.html" %}
+		
+		<h3>menu de empresa</h3>
+		{%menu cms.Page 1%}
+		{% include "cms/menu.html" %}
+
+	
+{%endblock%}
+-
+
+{%block content%}
+	
+	{% for content in contents %}
+		{{content.object.html}}
+	{% endfor %}
+	
+{%endblock%}

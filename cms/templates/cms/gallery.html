@@ -1,0 +1,59 @@
+
+
+{% if is_slider %}
+	<script src="{{STATIC_URL}}bxslider/jquery.bxslider.min.js"></script>
+	<script type="text/javascript">
+	  $(document).ready(function(){
+		$('#gallery-{{id}}').bxSlider({
+			auto: true,
+			controls: false,
+			autoControls: false,
+			pager: false,
+			pause: 3000,
+			speed: 1000,
+			mode: 'fade'
+		});
+	  });
+	</script>
+{% elif lightbox %}
+	<script type="text/javascript">
+		$(function() {
+			$("#gallery-{{id}} a").fancybox({
+				openEffect: 'none',
+				closeEffect: 'none',
+				cyclic: true
+			});
+		});
+    </script>
+{% endif %}
+
+<section id="gallery-{{id}}" class="gallery {% if lightbox %}lightbox{% endif %}">
+	{%for image in content %}
+		{% if columns %}
+			{% if forloop.first %}<div class="row">{% endif %}
+		{%endif%}
+
+		<figure class="col-md-{{ col_bootstrap }}">
+			{% if lightbox %}
+				<a href="{{image.image.url}}" target="_blank" rel="gallery{{ id }}">
+			{% elif image.link %}
+				<a href="{{image.link}}" target="_blank">
+			{%endif%}
+				<img src='{{ image.thumbnail }}' {% if alt %}alt="{{image.alt}}"{% endif %} />
+				{%if image.caption %}
+					<figcaption>
+						{{image.caption}}
+					</figcaption>
+				{%endif%}
+			{%if lightbox or image.link %}
+				</a>
+			{%endif%}
+		</figure>
+
+		{% if forloop.last %}
+			</div>
+		{% elif forloop.counter|divisibleby:columns %}
+			</div><div class="row">
+		{%endif%}
+	{%endfor%}
+</section>

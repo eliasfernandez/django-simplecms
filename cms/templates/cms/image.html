@@ -1,0 +1,22 @@
+{% load  thumbnail %}
+<div class="image image-{{id}}">
+<h1>{{name}}</h1>
+
+
+{%ifnotequal link ""%}
+	<a href="{{link}}" target="_blank">
+{%endifnotequal%}
+	<figure>
+
+		<img src='{{ image.thumb }}' {%ifnotequal width ""%}width="{{ width }}"{%endifnotequal%} {%ifnotequal height ""%}height="{{ height }}"{%endifnotequal%} {%ifnotequal alt ""%}alt="{{alt}}"{%endifnotequal%}>
+		{%ifnotequal caption ""%}
+			<figcaption>{{caption}}</figcaption>
+		{%endifnotequal%}
+	</figure>
+
+{%ifnotequal link ""%}
+	</a>
+{%endifnotequal%}
+
+
+ </div>
