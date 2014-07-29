@@ -1,7 +1,9 @@
 # coding=utf-8
 from mptt.models import MPTTModel, TreeForeignKey
 from os import path, mkdir
+from PIL import Image as PilImage
 from django.db import models
+from django.db.models.signals import pre_save
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType 
 from django.contrib.contenttypes import generic
@@ -9,22 +11,18 @@ from django.contrib.auth.models import Group
 from django.utils.translation import ugettext as _
 from django.forms import CharField, EmailField, FileField, ChoiceField, Textarea, BooleanField
 from cms.forms import CmsForm
-from PIL import Image as PilImage
 from tinymce.models import HTMLField
 from filer.fields.image import FilerImageField
 from filer.fields.file import FilerFileField
 from easy_thumbnails.files import get_thumbnailer
+
 default_options = {'size': (10000, 10000), 'crop': True}
 
-#indexación de contenidos
-
-# Modelo donde no se borran los registros
 class NonDeletedManager(models.Manager):
     "returns non deleted items"
     def get_query_set(self):
         return super(NonDeletedManager, self).get_query_set().filter(deleted=False)
 
-# Modelo donde no se borran los registros
 class VisibleManager(models.Manager):
     "returns non deleted items"
     def get_query_set(self):
@@ -36,6 +34,9 @@ class DeletedManager(models.Manager):
 
 
 def get_pages_for_group(user_groups): 
+    """
+        Returns the pages associated with user_groups or None if is not defined.
+    """
     if user_groups.exists():
         groups = user_groups.all()
     else:
@@ -45,6 +46,9 @@ def get_pages_for_group(user_groups):
 
 
 def get_page_for_group(user_groups, slug): 
+    """
+        Returns a page associated with user_groups given a slug.
+    """
     try:
         page = get_pages_for_group(user_groups).get( slug = slug)
     except Page.DoesNotExist:
@@ -56,9 +60,13 @@ def get_page_for_group(user_groups, slug):
 
 
 class Page(MPTTModel):
-    "Entidad de página"
-    deleted = models.BooleanField(default=False, verbose_name=_(u"Eliminar"))
-    hidden = models.BooleanField(default=False, verbose_name=_(u"Ocultar"))
+    
+    """
+        Page entity from which every content is hanging.
+    """
+
+    deleted = models.BooleanField(default=False, verbose_name=_(u"Remove"))
+    hidden = models.BooleanField(default=False, verbose_name=_(u"Hide"))
     objects = NonDeletedManager()
     visible = VisibleManager()
     deleted_objects = DeletedManager()
@@ -82,7 +90,6 @@ class Page(MPTTModel):
     
 
     def get_absolute_url(self):
-       # import ipdb;ipdb.set_trace()
         if(self.redirect_url != None and self.redirect_url != ''):
             return self.get_redirect_url()
         
@@ -98,7 +105,7 @@ class Page(MPTTModel):
         
         if len(urlpieces)>1:
             urlpieces.reverse()
-        #import ipdb;ipdb.set_trace()
+
         return '/%s/' % "/".join(urlpieces)
     
     def get_redirect_url(self):
@@ -118,7 +125,7 @@ class Page(MPTTModel):
         """
         move this item before previous item
         """
-        #import ipdb;ipdb.set_trace()
+
         prev_sibling = self.get_previous_sibling()
         if prev_sibling!=None: 
             self.move_to(prev_sibling,'left')
@@ -128,11 +135,10 @@ class Page(MPTTModel):
         """
         move this item after next item
         """
-    #    import ipdb;ipdb.set_trace()
+
         next_sibling = self.get_next_sibling()
         if next_sibling!=None: 
             self.move_to(next_sibling,'right')
-            ##Page.tree.rebuild()
             self.save()
         
         
@@ -148,8 +154,8 @@ class Page(MPTTModel):
 
 
 class ContentModel(models.Model):
-    deleted = models.BooleanField(default=False,  verbose_name=_(u"Eliminar") )
-    hidden = models.BooleanField(default=False, verbose_name=_(u"Ocultar") )
+    deleted = models.BooleanField(default=False,  verbose_name=_(u"Remove") )
+    hidden = models.BooleanField(default=False, verbose_name=_(u"Hide") )
     name =  models.CharField(max_length=100, null = True, blank = True)
     date_time_add = models.DateTimeField(auto_now_add = True, null = True, blank = True)
     date_time_update = models.DateTimeField(auto_now = True, null = True, blank = True)
@@ -181,7 +187,7 @@ class ContentModel(models.Model):
 
 
     def get_absolute_url(self):
-        #import ipdb; ipdb.set_trace()a
+
         page = self.get_page()
         if page:
             return page.get_absolute_url()
@@ -193,9 +199,15 @@ class ContentModel(models.Model):
 
 
 class Form(ContentModel):
-    """Tipo de contenido envio de formulario"""
-    content = models.TextField( help_text="Cada linea es un campo (nombre de campo|nombre=tipo_campo|texto por defecto ) ",   verbose_name=_("Content") )
-    to = models.TextField(  verbose_name=_("para"))
+    """
+        Form content type
+        field types:
+        input, textarea, email, file, select,checkbox
+        
+
+    """
+    content = models.TextField( help_text=_(u"Every line is a field ( Label|name=field_type|default text ) "),   verbose_name=_("Content") )
+    to = models.TextField(  verbose_name=_("to"))
     
             
     class Meta:
@@ -266,7 +278,9 @@ class Form(ContentModel):
         return content    
 
 class List(ContentModel):
-    """Lista de viñetas"""
+    """
+       Html List, once per line
+    """
     content = models.TextField( help_text="Cada linea es una viñeta",  verbose_name=_("Content"))
     is_ordered = models.BooleanField(default = False,  verbose_name=_("ordered list"))
     class Meta:
@@ -280,13 +294,18 @@ class List(ContentModel):
         return content
 
 class Table(ContentModel):
-    """Tabla"""
-    content = models.TextField( help_text="Cada linea es una fila (columna 1| columna 2 | columna 3)",  verbose_name=_("Content"))
-    has_header = models.BooleanField(default = False,verbose_name=_("has header"))
+    """
+        Table content type
+        cell 1 |  cell 2 |  cell 3
+        cell 4 |  cell 5 |  cell 6
+
+    """
+    content = models.TextField( help_text=_(u"Every line is a row (cell 1| cell 2 | cell 3)"),  verbose_name=_(u"Table content"))
+    has_header = models.BooleanField(default = False,verbose_name=_(u"has header"))
     
     class Meta:
-        verbose_name = "tabla"
-        verbose_name_plural = "tablas"
+        verbose_name = "table"
+        verbose_name_plural = "tables"
     
     @staticmethod
     def cms_prepare(content, request):
@@ -302,38 +321,40 @@ class Table(ContentModel):
     
 
 class Filelist(ContentModel):
-    """Lista de archivos"""
+    """ 
+        File list content
+    """
     content = models.TextField( help_text=" Descripción del listado de archivos",verbose_name=_("Content"))
 
     class Meta:
-        verbose_name = "lista de archivos"
-        verbose_name_plural = "listas de archivos"
+        verbose_name = "File list"
+        verbose_name_plural = "file lists"
         
     @staticmethod
     def cms_prepare(content, request):
         content.content= File.objects.filter(file_list=content.id)
-        #import ipdb; ipdb.set_trace()
-#        for i in  range(len(content.content)) :
- #           content.content[i].thumbnail = Image.thumbnail(content.content[i].image, size, mode) 
-            
-      ##  import ipdb;ipdb.set_trace()
+        
         return content
  
     
 class File(ContentModel):
-    """Archivo o lista de archivos"""
+    """
+        File content type
+    """
     
     #file_link = models.FileField( max_length=200, upload_to="uploads/", help_text="archivos pdf, doc, xls, etc...")
-    file_link = FilerFileField(related_name ="file_content", blank=True,  null=True,help_text="Sube un documento doc, xls, pdf, etc...")
-    content = models.TextField( help_text=" Descripción del archivo",verbose_name=_("Content"),  null=True, blank=True)
+    file_link = FilerFileField(related_name ="file_content", blank=True,  null=True,help_text="Upload one file doc, xls, pdf, etc...")
+    content = models.TextField( help_text=_(u" File Content"),verbose_name=_("Content"),  null=True, blank=True)
     file_list = models.ForeignKey(Filelist,  null=True, blank=True)
     order =models.PositiveSmallIntegerField("Position")
 
 
     def get_absolute_url(self):
-        """ Return the url for the file, 
+        """ 
+        Return the url for the file, 
         the url for the list of files or the
         generic url for the content model (the first available) 
+        
         """
 
         file_url = settings.MEDIA_URL + str(self.file_link.url)
@@ -345,14 +366,16 @@ class File(ContentModel):
 
 
     class Meta:
-        verbose_name = "archivo"
+        verbose_name = "file"
         ordering = ['order']
 
 
 class Image(ContentModel):
-    """Tipo de contenido genérico para una imagen"""
+    """ 
+        Image content type 
+    """
     
-    image = FilerImageField(related_name ="image_content", blank=True,  null=True,help_text="Sube una imagen en jpg, gif y png, (800x600 max)")
+    image = FilerImageField(related_name ="image_content", blank=True,  null=True,help_text="Upload a image file jpg, gif y png, (800x600 max)")
     caption = models.CharField(max_length=255,  null=True, blank=True)
     content = models.TextField(null=True, blank=True)
     width = models.PositiveSmallIntegerField( blank=True,  null=True)
@@ -386,19 +409,21 @@ class Image(ContentModel):
         new_y = (float(max_x) / x) * y
         return (int(max_x), int(new_y))
     class Meta:
-        verbose_name = "imagen"
-        verbose_name_plural = "imagenes"
+        verbose_name = "image"
+        verbose_name_plural = "images"
 
 
 MAX_IMAGE_SIZE  = [10000,10000]
 class Gallery(ContentModel):
-    """Tipo de contenido genérico para una galería de imagenes"""
+    """
+        Gallery content type
+    """
     columns = models.PositiveSmallIntegerField(default= 0,verbose_name=_("Columns"))
     max_width = models.PositiveSmallIntegerField(blank=True,  null=True,verbose_name=_("max width"))
     max_height = models.PositiveSmallIntegerField( blank=True,  null=True,verbose_name=_("max height"))
     is_slider  = models.BooleanField(default = False,verbose_name=_("is slider"))
     lightbox  = models.BooleanField(default = False,verbose_name=_("lightbox"))
-    crop  = models.BooleanField(default = False,verbose_name=_("Recortar"))
+    crop  = models.BooleanField(default = False,verbose_name=_("Crop"))
     content = models.TextField()
 
     
@@ -433,8 +458,10 @@ class Gallery(ContentModel):
         verbose_name = "Galería"
   
 class ImageFile(models.Model): 
-    """Tipo de contenido genérico para una galería de imagenes"""
-    image = FilerImageField(related_name ="image_imagefile",help_text="Sube una imagen en jpg, gif y png, (800x600 max)")
+    """
+        Image content
+    """
+    image = FilerImageField(related_name ="image_imagefile",help_text="Upload and image file jpg, gif y png, (800x600 max)")
     #image = ImageField( max_length=200, upload_to="images/", help_text="Sube una imagen en jpg, gif y png, (800x600 max)")
     caption = models.CharField(max_length=255, null=True, blank=True,verbose_name=_("Caption"))
     alt = models.CharField(max_length=100,null=True, blank=True,verbose_name=_("alt")) 
@@ -442,8 +469,8 @@ class ImageFile(models.Model):
     link = models.CharField(max_length=200, blank=True, null=True)
 
     class Meta:
-        verbose_name = "archivo de imagen"
-        verbose_name_plural = "archivos de imagen"
+        verbose_name = "image file"
+        verbose_name_plural = "image files"
     
     def get_absolute_url(self):
         if self.gallery:
@@ -452,7 +479,9 @@ class ImageFile(models.Model):
             return ""
 
 class Text(ContentModel):
-    """ Tipo de contenido Texo enriquecido """
+    """ 
+        Rich text content
+    """
     content = HTMLField(null=True, blank=True)
     class Meta:
         verbose_name = "texto"
@@ -460,22 +489,27 @@ class Text(ContentModel):
 
     
 class Html(ContentModel):
-    """Tipo de contenido Html"""
+    """
+        Plain Html content
+    """
+    
     content = models.TextField()
     class Meta:
-        verbose_name = "codigo html"
-        verbose_name_plural = "codigos html"
+        verbose_name = _(u"html code")
+        verbose_name_plural = _(u"html codes" )
 
 
 
 class TextImage(ContentModel):
-    """Tipo de contenido Texo enriquecido"""
+    """
+        Text and image content
+    """
     text_ptr_id = models.PositiveSmallIntegerField(default= 0,verbose_name=_("ptr_id"))
-    image = FilerImageField(related_name ="textimage_content",null=True, blank=True,  help_text="Sube una imagen en jpg, gif y png, (800x600 max)", default = None)
+    image = FilerImageField(related_name ="textimage_content",null=True, blank=True,  help_text=_(u" Upload an image file jpg, gif y png, (800x600 max)"), default = None)
     content = HTMLField()
     class Meta:
-        verbose_name = "texto con imagen"
-        verbose_name_plural = "textos con imagen"
+        verbose_name = _(u"image and text")
+        verbose_name_plural = _(u"image and text contents")
 
     @staticmethod
     def cms_prepare(content, request):
@@ -494,10 +528,12 @@ pagerelation_limits = {
                         }
 
 
-from django.db.models.signals import pre_save
+
 
 class PageRelation(models.Model):
-    "Relacion entre pagina y contenido"
+    """
+        Page and content relationship
+    """
     page = models.ForeignKey(Page)
     content_type = models.ForeignKey(ContentType, limit_choices_to=pagerelation_limits)
     object_id = models.PositiveIntegerField()

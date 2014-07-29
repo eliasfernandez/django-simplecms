@@ -1,4 +1,5 @@
 #coding=utf-8
+
 from django.conf import settings
 from django.contrib import admin
 from django.contrib.contenttypes.models import ContentType
@@ -15,7 +16,7 @@ from django.shortcuts import redirect, get_object_or_404
 from django.forms.models import BaseInlineFormSet
 from django.utils.text import  capfirst
 from django.forms import ModelForm
-#django_bfm
+
 from django.core.urlresolvers import reverse_lazy
 
 from cms.models import *
@@ -23,7 +24,7 @@ from cms.models import *
 
 
 class ContentAdmin(admin.ModelAdmin):
-    "Clase genérica de la que heredan todos los elementos de contenido"
+    " Class from which all the content type classes inherit "
     exclude = ["deleted",]
 
     def get_model_perms(self, *args, **kwargs):
@@ -39,9 +40,7 @@ class ContentAdmin(admin.ModelAdmin):
         if "_popup" in request.POST:
             return HttpResponse(
                 '<!DOCTYPE html><html><head><title></title></head><body>'
-                '<script type="text/javascript">opener.dismissAddAnotherPopup(window, "%s", "%s");</script></body></html>' % \
-                # escape() calls force_unicode.
-                (escape(pk_value), escapejs(obj)))
+                '<script type="text/javascript">opener.dismissAddAnotherPopup(window, "%s", "%s");</script></body></html>' % (escape(pk_value), escapejs(obj)))
         return super(ContentAdmin, self).response_change(request, obj)
 
     class Media:
@@ -82,22 +81,6 @@ class FileAdmin(ContentMceAdmin):
     exclude = ('file_list','deleted',)
 
 admin.site.register(File, FileAdmin)
-#admin.site.register(Page)
-
-
-
-
-
- 
-#class GenericCollectionTabularInline(GenericCollectionInlineModelAdmin):
-#    template = 'admin/edit_inline/gen_coll_tabular.html'
- 
-#class GenericCollectionStackedInline(GenericCollectionInlineModelAdmin):
-#   template = 'admin/edit_inline/gen_coll_stacked.html'
-
-#class PageRelationInline(GenericCollectionTabularInline):
-
-
 
 class PageRelationForm(ModelForm):
     fields=['content_type', 'object_id', 'sorting']
@@ -112,9 +95,7 @@ class BaseFormSet(BaseInlineFormSet):
     def _construct_form(self, i, **kwargs):
         form = super(BaseFormSet, self)._construct_form(i, **kwargs)
         has_instance  = form.initial.has_key("content_type")
-        #import ipdb; ipdb.set_trace()
         if has_instance:
-            #form.readonly_fields =("content_type",)
             field = form.fields.get('content_type')
             field.widget.attrs["disabled"] = "disabled"
         
@@ -125,10 +106,10 @@ class BaseFormSet(BaseInlineFormSet):
 
 class PageRelationInline(admin.options.InlineModelAdmin):
     """
-    Edición en linea de contenidos relacionados con esta página
+    Inline content admin from page form
     """
-    verbose_name = "Contenido de página"
-    verbose_name_plural = "Contenidos de página"
+    verbose_name = _(u"Page content")
+    verbose_name_plural = _(u"Page contents")
     model = PageRelation
     extra = 0 
     fields = ( "sorting",'content_type','object_id')
@@ -162,7 +143,8 @@ class PageRelationInline(admin.options.InlineModelAdmin):
     
  
 class PageAdmin(admin.ModelAdmin):
-    "La administración de la página"
+    " Main page admin "
+    
     exclude = ["deleted",]    
     prepopulated_fields = {'slug': ('name',)}
     fieldsets = (
