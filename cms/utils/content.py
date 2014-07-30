@@ -100,7 +100,9 @@ def model_to_dict(obj, exclude=['AutoField', 'ForeignKey', \
     return tree
         
 def render(request, relations):
-    """Esta función se encarga de dado un listado de relaciones página objeto, 
+    """
+
+    Esta función se encarga de dado un listado de relaciones página objeto, 
     devolver el objeto y renderizarlo en la propiedad html teniendo en cuenta 
     todos los contextos excepto los que se crean en la app 'cms'
     
