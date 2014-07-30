@@ -14,7 +14,7 @@ setup(
             ],
             package_data={
                 'cms': ['static/*', "templates/*"]
-            }
+            },
             description='A Django app for cms purposes that covers 90% of tasks you need from a cms',
             long_description=long_description,
             author='Elías Fernández',
