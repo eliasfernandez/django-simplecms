@@ -24,7 +24,7 @@ setup(
             platforms=["any"],
             install_requires=[
               "Django",
-              "PIL",
+              "pillow",
               "django-mptt",
               "django-tinymce",
               "django-suit",
