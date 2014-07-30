@@ -1,6 +1,5 @@
-****************
 django-simplecms
-****************
+================
 
 Tool to include a basic cms which can create pages hierarchy with "n" associated contents 
 for each one. The content type included are:
@@ -17,8 +16,8 @@ for each one. The content type included are:
 * File list 
   
 
- Requirements and installation
- =============================
+Requirements and installation
+-----------------------------
 
 It requires:
 
@@ -32,5 +31,6 @@ It requires:
 
 You can try it without django suit but it is highly recommendable. To install simply use
 
-pip install django-simplecms
+	pip install git+https://github.com/eliasfernandez/django-simplecms
 
+...
