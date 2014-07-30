@@ -6,7 +6,7 @@ long_description = open('README.rst').read()
 
 setup(
             name='django-simplecms',
-            version=simplecms.VERSION,
+            version=cms.VERSION,
             packages=['cms',],
             description='A Django app for cms purposes that covers 90% of tasks you need from a cms',
             long_description=long_description,
