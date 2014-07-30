@@ -18,7 +18,7 @@ setup(
             install_requires=[
               "Django",
               "PIL",
-              "mptt",
+              "django-mptt",
               "django-tinymce",
               "django-suit",
               "django-filer"
