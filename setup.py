@@ -113,6 +113,7 @@ setup(
                       'cms.templatetags',
                       'cms.utils',
             ],
+            include_package_data=True,
             package_data=find_package_data('.'),
             description='A Django app for cms purposes that covers 90% of tasks we need from a cms',
             long_description=long_description,
