@@ -1,15 +1,17 @@
-function showGenericRelatedObjectLookupPopup(triggeringLink, ctArray) {
+function showGenericRelatedObjectLookupPopup(triggeringLink) {
     var object_id = triggeringLink.id.replace(/^lookup_/, '');
     var name = id_to_windowname(object_id);
     var contenttype= object_id.replace(/object_id/, 'content_type');
-    var select = document.getElementById(contenttype);
+    var select = $("#"+contenttype);
+    
     var input = document.getElementById(object_id);
-    if (select.selectedIndex === 0) {
+    if (select.val() === 0) {
         alert("Select a content type first.");
         return false;
     }
-    var selectedItem = select.item(select.selectedIndex).value;
-    var  action = "add";
+    var selectedItem = select.val();
+
+    var action = "add";
     var params = "_continue=1&_popup=1";
     if(input.value !=""){
     	action = input.value;
@@ -17,10 +19,11 @@ function showGenericRelatedObjectLookupPopup(triggeringLink, ctArray) {
     }else{
     	params = "_popup=1"; 	
     }
-   
-    //ctArray es el listado de tipos de contenido disponibles 
     
-    var href = triggeringLink.href.replace(/#/,'../../../'+ctArray[selectedItem]+"/"+action+"/");
+    //cms_ctypes es el listado de tipos de contenido disponibles 
+
+    var href = '/admin/'+cms_ctypes[selectedItem]+"/"+action+"/";
+    
     if (href.search(/\?/) >= 0) {
         href = href + '&' + params;
     } else {
@@ -30,6 +33,19 @@ function showGenericRelatedObjectLookupPopup(triggeringLink, ctArray) {
     win.focus();
     return false;
 }
+
+
+(function ($) {
+
+    $( document ).on("django:lookup-related", function(e){
+            showGenericRelatedObjectLookupPopup(e.target)
+            //showAdminPopup(triggeringLink, /^lookup_/, true)
+            e.preventDefault();
+            
+    });
+
+}(django.jQuery))
+
 
 
 function dismissAddAnotherPopup(win, newId, newRepr) {

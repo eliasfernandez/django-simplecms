@@ -8,10 +8,10 @@ from cms.models import *
 from cms.models import get_page_for_group
 from django.forms.models import model_to_dict
 from django.core.urlresolvers import reverse
-from django.shortcuts import get_object_or_404, render_to_response
+from django.shortcuts import get_object_or_404, render
 from django.template import RequestContext, loader
 from django import forms
-from django.template.base import TemplateDoesNotExist
+from django.template import TemplateDoesNotExist
 
 
 def show(request, slug):
@@ -29,11 +29,12 @@ def show(request, slug):
     request.page = page
     
     try:
-        template = loader.select_template(("cms/custom/page_%s.html" % page.id, "cms/page.html"))
+        template_backend = loader.select_template(("cms/custom/page_%s.html" % page.id, "cms/page.html"))
+
     except TemplateDoesNotExist:
         content.html =  _('There is no template asociated with page')
 
-    return render_to_response(template.name, context_instance = RequestContext(request))
+    return render(request, template_backend.template.name)
 
 
 

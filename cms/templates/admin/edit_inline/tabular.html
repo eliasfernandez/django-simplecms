@@ -1,4 +1,8 @@
 {% load i18n admin_static admin_modify %}
+
+<script type="text/javascript">
+var cms_ctypes={{ inline_admin_formset.formset.content_types|safe }};
+</script>
 <div class="inline-group {{ inline_admin_formset.opts.suit_classes }}" id="{{ inline_admin_formset.formset.prefix }}-group">
   <div class="tabular inline-related {% if forloop.last %}last-related{% endif %}">
 {{ inline_admin_formset.formset.management_form }}
@@ -6,7 +10,7 @@
    <h2>{{ inline_admin_formset.opts.verbose_name_plural|capfirst }}</h2>
    {{ inline_admin_formset.formset.non_form_errors }}
    <table class="table table-bordered table-condensed table-striped">
-      {% if not inline_admin_formset.formset.prefix = "pagerelation_set" %}
+      {% if not inline_admin_formset.formset.prefix == "pagerelation_set" %}
      
          <thead><tr>
          {% for field in inline_admin_formset.fields %}
@@ -60,10 +64,10 @@
                       
                    
                     
-                    {% if field.field.name = inline_admin_formset.formset.ct_fk_field %}
+                    {% if field.field.name == inline_admin_formset.formset.ct_fk_field %}
                     {{ inline_admin_formset.formset.name }}
                       <span style="display:none">{{ field.field }}</span>
-                    <a id="lookup_id_{{field.field.html_name}}" class="related-lookup" onclick="return showGenericRelatedObjectLookupPopup(this, {{ inline_admin_formset.formset.content_types }});" href="#">
+                    <a id="lookup_id_{{field.field.html_name}}" class="related-lookup" href="#">
 
                     {% if  inline_admin_form.original  %}
 			
@@ -78,7 +82,7 @@
                     </a>
                       
                      
-                    {% elif field.field.name = inline_admin_formset.formset.ct_field %}
+                    {% elif field.field.name == inline_admin_formset.formset.ct_field %}
                        {% if field.field.value %}
                           
                           {{ field.widget }}
@@ -89,7 +93,7 @@
                           {{ field.field }} 
                         </span>
                        {% endif %}
-                    {% elif field.field.name = inline_admin_formset.formset.sortable_field_name%}
+                    {% elif field.field.name == inline_admin_formset.formset.sortable_field_name%}
 
                       {{ field.field }} 
                     {% else %}

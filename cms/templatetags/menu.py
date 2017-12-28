@@ -1,5 +1,5 @@
 from django import template
-from django.db.models import get_model
+from django.apps import apps
 from cms.utils.content import render
 from cms.models import  PageRelation
 from cms.models import  get_pages_for_group
@@ -37,7 +37,7 @@ class MenuNode(template.Node):
         
         
     def render(self, context):
-        model = get_model(*self.model.split('.'))
+        model = apps.get_model(*self.model.split('.'))
         if(hasattr(self,"pid")):
             pid=template.Variable(self.pid).resolve(context)
         else:
@@ -93,7 +93,6 @@ def breadcrumb(context, page):
 #                 nodes.insert(0, node)
         
 #         context['nodes'] = nodes
-#         #import ipdb; ipdb.set_trace()
 #         if context.has_key('object') and context['object']:
 #             context['current_menu']=context['object']
             
@@ -136,7 +135,6 @@ class ContentNode(template.Node):
         nodes = PageRelation.objects.filter(pk=pid)
         contents = render(context['request'],nodes)
         
-        #import ipdb;ipdb.set_trace()
         context['nodes'] =contents
         return ''
         #return 'datetime.datetime.now().strftime(self.format_string)'

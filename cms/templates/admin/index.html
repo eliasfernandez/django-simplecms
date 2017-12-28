@@ -21,30 +21,28 @@
               {% blocktrans with name=app.name %}
                 {{ name }}{% endblocktrans %}</a></caption>
             {% for model in app.models %}
-              
-                {% if app.name = "Cms" %}
-                  
-                {% if  model.admin_url = "/admin/cms/page/" %}
-                <tr>
-                  <th scope="row">
-                  {{ model.name }}
-                  {% if model.admin_url %}
-                    <td>
-                      <a href="{{ model.admin_url }}" class="changelink icon">{% trans 'Change' %} </a>
-                    </td>
-                  {% else %}
-                    <td>&nbsp;</td>
-                  {% endif %}
+                {% if app.name == "Cms" %}                  
+                  {% if  model.admin_url == "/admin/cms/page/" %}
+                  <tr>
+                    <th scope="row">
+                    {{ model.name }}
+                    {% if model.admin_url %}
+                      <td>
+                        <a href="{{ model.admin_url }}" class="changelink icon">{% trans 'Change' %} </a>
+                      </td>
+                    {% else %}
+                      <td>&nbsp;</td>
+                    {% endif %}
 
-                  {% if model.add_url %}
-                    <td><a href="{{ model.add_url }}" class="addlink icon"><i
-                            class="icon-plus-sign icon-alpha75"></i>{% trans 'Add' %}
-                    </a></td>
-                  {% else %}
-                    <td>&nbsp;</td>
+                    {% if model.add_url %}
+                      <td><a href="{{ model.add_url }}" class="addlink icon"><i
+                              class="icon-plus-sign icon-alpha75"></i>{% trans 'Add' %}
+                      </a></td>
+                    {% else %}
+                      <td>&nbsp;</td>
+                    {% endif %}
+                  </tr>
                   {% endif %}
-                </tr>
-                {% endif %}
                 {% else %}
                 <tr>
                   <th scope="row">

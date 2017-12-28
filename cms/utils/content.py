@@ -1,14 +1,20 @@
 # coding=utf-8
+from itertools import chain
 from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext,  Context, loader
 from django import forms
-from django.utils.importlib import import_module
+try:
+    from django.utils.module_loading import import_module
+
+except ImportError:
+    from django.utils.importlib import import_module
+
 from django.core.exceptions import ImproperlyConfigured
-from django.template.base import TemplateDoesNotExist
+from django.template import TemplateDoesNotExist
 from django.core.exceptions import ObjectDoesNotExist
 
-_builtin_context_processors =  ('django.core.context_processors.csrf',)
+_builtin_context_processors =  ('django.template.context_processors.csrf',)
 
 
 def get_standard_processors():
@@ -19,7 +25,7 @@ def get_standard_processors():
     
     processors=[]
     collect = []
-    contxtprocessors = list(settings.TEMPLATE_CONTEXT_PROCESSORS)
+    contxtprocessors = settings.TEMPLATES[0]['OPTIONS']['context_processors']
     contxtprocessors = [x for x in contxtprocessors if x[0:3]<>'cms']
     collect.extend(contxtprocessors)
     collect.extend(_builtin_context_processors)
@@ -42,10 +48,9 @@ class CmsRequestContext(Context):
     """
     Like RequestContext but without special processors
     """
-    def __init__(self, request, dict_=None, processors=None, current_app=None,
-            use_l10n=None, use_tz=None):
-        Context.__init__(self, dict_, current_app=current_app,
-                use_l10n=use_l10n, use_tz=use_tz, autoescape=False)
+    def __init__(self, request, dict_=None, use_l10n=None, use_tz=None):
+    
+        Context.__init__(self, dict_, use_l10n=use_l10n, use_tz=use_tz, autoescape=False)
         
         for prcssor in get_standard_processors():
             self.update(prcssor(request))
@@ -60,7 +65,12 @@ def model_to_dict(obj, exclude=['AutoField', 'ForeignKey', \
         http://djangosnippets.org/snippets/2342/
     '''
     tree = {}
-    for field_name in obj._meta.get_all_field_names():
+    field_names = list(set(chain.from_iterable(
+        (field.name, field.attname) if hasattr(field, 'attname') else (field.name,)
+        for field in obj._meta.get_fields()
+        if not (field.many_to_one and field.related_model is None)
+    )))
+    for field_name in field_names:
         try:
             field = getattr(obj, field_name)
         except (ObjectDoesNotExist, AttributeError):
@@ -83,7 +93,7 @@ def model_to_dict(obj, exclude=['AutoField', 'ForeignKey', \
  
             continue
  
-        field = obj._meta.get_field_by_name(field_name)[0]
+        field = obj._meta.get_field(field_name)
         if field.__class__.__name__ in exclude:
             continue
  
@@ -108,7 +118,7 @@ def render(request, relations):
     
     """
     cntxt = CmsRequestContext(request)
-    user = cntxt.get('user')
+
     contents = []
     for rel in relations:
         
@@ -125,25 +135,16 @@ def render(request, relations):
          
         try:
             t = loader.select_template(("cms/custom/%s.html"% rel.id,"cms/custom/page_%s_%s.html"% (rel.page_id, rel.content_type.model), "cms/%s.html" % ctype.model))    
-            cntxt.new()
-            user_can_edit = user.has_perm("cms.change_"+ctype.model)   
             
-            admin_links=[]
-            
-            if user_can_edit:
-                admin_links.append( "<a title='editar' class='cms cms-edit' href='/admin/cms/%s/%s/'>Editar</a>" % (ctype.model, content.id) )
-            
-            cntxt.update(model_to_dict(content))
-            cntxt.update(content.__dict__)
+            cntxt = model_to_dict(content)
+            #cntxt.update(content.__dict__)
+            cntxt["ctype"]=ctype.model
 
-            cntxt.update({"ctype":ctype.model})
             content.html =  t.render(cntxt)
         
         except TemplateDoesNotExist:
             content.html =  _('There is no template asociated with %s content type '  )% ctype.model
 
         contents.append({'type':ctype.model, 'object': content })
-        # if (ctype.model == 'textimage'):
-        #     import ipdb; ipdb.set_trace()
     return contents
 

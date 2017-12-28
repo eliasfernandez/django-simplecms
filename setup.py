@@ -122,7 +122,7 @@ setup(
             url='http://github.com/eliasfernandez/django-simplecms',
             platforms=["any"],
             install_requires=[
-              "Django",
+              "Django==1.11",
               "pillow",
               "django-mptt",
               "django-tinymce",

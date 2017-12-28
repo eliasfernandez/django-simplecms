@@ -6,7 +6,7 @@ from django.db import models
 from django.db.models.signals import pre_save
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType 
-from django.contrib.contenttypes import generic
+from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.auth.models import Group
 from django.utils.translation import ugettext as _
 from django.forms import CharField, EmailField, FileField, ChoiceField, Textarea, BooleanField
@@ -256,17 +256,17 @@ class Form(ContentModel):
                 if request.POST.has_key(name):
                     formlist[i][1].initial = request.POST[name] 
                 i = i + 1
-                #import ipdb; ipdb.set_trace()
+
                     
         
         form.setFields(formlist)
-        #import ipdb; ipdb.set_trace()
+
         request.isvalidform = False
         if request.method == 'POST': # If the form has been submitted...
-            #import ipdb; ipdb.set_trace()
+
             form.setData(request.POST) # Set the form data
             form.validate(request.POST) # validate the from
-            #import ipdb; ipdb.set_trace()
+
             if form.is_valid(): # All validation rules pass 
                form.send(content.to.split(","))
                content.content = "Gracias"
@@ -455,7 +455,7 @@ class Gallery(ContentModel):
 
     
     class Meta:
-        verbose_name = "Galería"
+        verbose_name = "Gallery"
   
 class ImageFile(models.Model): 
     """
@@ -513,7 +513,7 @@ class TextImage(ContentModel):
 
     @staticmethod
     def cms_prepare(content, request):
-        #import ipdb; ipdb.set_trace()
+
         # content.imageurl = get_thumbnailer(content.image.url).get_thumbnail(options).url
         content.content = {"text":content.content,"image":content.image.url}
         return content
@@ -537,7 +537,7 @@ class PageRelation(models.Model):
     page = models.ForeignKey(Page)
     content_type = models.ForeignKey(ContentType, limit_choices_to=pagerelation_limits)
     object_id = models.PositiveIntegerField()
-    content_object = generic.GenericForeignKey('content_type', 'object_id')
+    content_object = GenericForeignKey('content_type', 'object_id')
     sorting = models.PositiveSmallIntegerField(default= 0)
     def __unicode__(self):
         pr_model  = self.content_type.model_class()

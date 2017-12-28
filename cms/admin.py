@@ -1,5 +1,7 @@
 #coding=utf-8
 
+from django.db.utils import OperationalError
+from django.conf.urls import url
 from django.conf import settings
 from django.contrib import admin
 from django.contrib.contenttypes.models import ContentType
@@ -8,9 +10,10 @@ from django.utils.html import escape, escapejs
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 from django.utils.translation import ugettext_lazy
+
 from django.forms import TextInput
 
-from django.conf.urls import patterns
+#from django.conf.urls import patterns
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import redirect, get_object_or_404
 from django.forms.models import BaseInlineFormSet
@@ -83,10 +86,11 @@ class FileAdmin(ContentMceAdmin):
 admin.site.register(File, FileAdmin)
 
 class PageRelationForm(ModelForm):
-    fields=['content_type', 'object_id', 'sorting']
+    fields = ('content_type', 'object_id', 'sorting')
     readonly_fields = ["content_type",]
     
     class Meta:
+        fields = ('content_type', 'object_id', 'sorting')
         model = PageRelation
         
 
@@ -127,9 +131,12 @@ class PageRelationInline(admin.options.InlineModelAdmin):
     def __init__(self, parent_model, admin_site):
        
         super(PageRelationInline, self).__init__(parent_model, admin_site)
-        ctypes = ContentType.objects.all().order_by('id').values_list('id', 'app_label','model')
-        elements = ["%s: '%s/%s'" % (id, app_label, model) for id, app_label, model in ctypes]
-        self.content_types = "{%s}" % ",".join(elements)
+        try:
+            ctypes = ContentType.objects.all().order_by('id').values_list('id', 'app_label','model')
+            elements = ["%s: '%s/%s'" % (id, app_label, model) for id, app_label, model in ctypes]
+            self.content_types = "{%s}" % ",".join(elements)
+        except OperationalError:
+            pass
    
     def get_formset(self, request, obj=None):
         result = super(PageRelationInline, self).get_formset(request, obj)
@@ -198,10 +205,10 @@ class PageAdmin(admin.ModelAdmin):
     
     def get_urls(self):
         admin_view = self.admin_site.admin_view
-        urls = patterns('',
-            (r'^(?P<item_pk>\d+)/move_up/$', admin_view(self.move_up)),
-            (r'^(?P<item_pk>\d+)/move_down/$', admin_view(self.move_down)),
-        )
+        urls = [
+                url(r'^(?P<item_pk>\d+)/move_up/$', admin_view(self.move_up)),
+                url(r'^(?P<item_pk>\d+)/move_down/$', admin_view(self.move_down)),
+            ]
         return urls + super(PageAdmin, self).get_urls()
 
     def move_up(self, request, item_pk):
